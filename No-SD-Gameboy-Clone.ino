@@ -26,13 +26,12 @@
 #define led_r 3
 #define led_g 5
 
-// Buzzer
-#define buzzer 12
-
 TFT TFTscreen = TFT(CS, DC, RST);
 LedControl led_matrix = LedControl(matrix_din, matrix_clk, matrix_cs, 3);
 
 void test();
+
+void updateTFT();
 
 void setup() {
   TFTscreen.begin();
@@ -52,10 +51,17 @@ void setup() {
   TFTscreen.background(0, 0, 0);
 
   test();
+
+  digitalWrite
 }
 
 
 void loop() {
+  updateTFT();
+  
+}
+
+void updateTFT() {
   
 }
 
