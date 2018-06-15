@@ -49,20 +49,27 @@ void setup() {
   pinMode(led_r, OUTPUT);
 
   TFTscreen.background(0, 0, 0);
-
-  test();
-
-  digitalWrite
 }
 
 
 void loop() {
   updateTFT();
-  
+  Serial.println("wtf");
+  int LED[24] = {B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111, B11111111};
+  updateLED(LED);
 }
 
 void updateTFT() {
   
+}
+
+void updateLED(int arr[24]) {
+  for(int x = 0; x < 24; x++){
+    Serial.print((x - (x % 8)) / 8);
+    Serial.print("    ");
+    Serial.println(x % 8);
+    led_matrix.setRow(((x - (x % 8)) / 8), x % 8, arr[x]);
+  }
 }
 
 void test() {
