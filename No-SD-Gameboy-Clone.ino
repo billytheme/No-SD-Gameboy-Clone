@@ -73,14 +73,8 @@ void updateLED(int arr[24][8]) {
   for(int x = 0; x < 24; x++){
     int total = 0;
     for(int y = 0; y < 8; y++){
-      Serial.print(total);
-      Serial.print(" + ");
-      Serial.print(arr[x][y] * pow(2, y));
-      Serial.print(" = ");
       total = total + (arr[x][y] * ceil(pow(2, y)));
-      Serial.println(total);
     }
-    Serial.println(total);
     uparr[x] = total;
   } 
   for(int x = 0; x < 24; x++){
