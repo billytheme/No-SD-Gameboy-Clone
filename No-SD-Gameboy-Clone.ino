@@ -48,49 +48,82 @@ void setup() {
 
   TFTscreen.background(0, 0, 0);
 }
-
+byte LEDDisplay[24][8] = {{1, 0, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1},
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 0, 1, 1, 1}, {1, 1, 1, 0, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 0, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 0, 1, 1, 1, 1}, 
+                          {1, 1, 0, 0, 1, 1, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
+                          {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}};
 
 void loop() {
-  int LEDDisplay[24][8] = {{1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
-                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}};
+  eliminateLine(LEDDisplay);
 
   updateLED(LEDDisplay);
 }
 
-void updateLED(int arr[24][8]) {
-  Serial.println(B11111111);
-  int uparr[24];
-  for(int x = 0; x < 24; x++){
-    int total = 0;
-    for(int y = 0; y < 8; y++){
-      total = total + (arr[x][y] * ceil(pow(2, y)));
+void updateLED(byte arr[24][8]) {
+  byte uparr[24];
+  for(byte x = 0; x < 24; x++){
+    byte total = 0;
+    for(byte y = 0; y < 8; y++){
+      total = total + (arr[x][7-y] * ceil(pow(2, y)));
     }
     uparr[x] = total;
   } 
-  for(int x = 0; x < 24; x++){
-    led_matrix.setRow(((x - (x % 8)) / 8), x % 8, arr[x]);
+
+  for(byte x = 0; x < 24; x++){
+    led_matrix.setRow(((x - (x % 8)) / 8), x % 8, uparr[x]);
   }
 }
 
+void eliminateLine(byte input[24][8]){
+  byte num = 0;
+  byte output[24][8];
+  
+  bool assign;
+  for(byte x = 0; x < 24; x++){
+    assign = false;
+    for(byte help = 0; help < 8; help++){
+      if(input[x][help] == 0){
+        assign = true;
+      }
+    }
+    if(assign){
+      for(byte y = 0; y < 8; y++){
+        output[num][y] = input[x][y];
+      }
+      num++;
+    }
+  }
+  
+  for(byte x; num < 24; num++){
+    for(byte y = 0; y < 8; y++){
+      output[num][y] = 0;
+    }
+  }
+  
+  for(byte x = 0; x < 24; x++){
+    for (byte y = 0; y < 8; y++){
+      input[x][y] = output[x][y];
+    }
+  }
+}
+/*
 void test() {
   
-  for(int x = 0; x < 2; x++){
+  for(byte x = 0; x < 2; x++){
     digitalWrite(led_r, HIGH);
     delay(100);
     digitalWrite(led_r, LOW);
     delay(100);
   }
-    for(int x = 0; x < 2; x++){
+    for(byte x = 0; x < 2; x++){
     digitalWrite(led_g, HIGH);
     delay(100);
     digitalWrite(led_g, LOW);
@@ -125,8 +158,6 @@ void test() {
   led_matrix.setRow(2, 5, B11111111);
   led_matrix.setRow(2, 6, B11111111);
   led_matrix.setRow(2, 7, B11111111);
-
-  Serial.println("on");
 
   delay(1000);
 
@@ -167,7 +198,7 @@ void test() {
   TFTscreen.text("self\n", 4, 62);
   TFTscreen.text("coulter\n", 4, 82);
 
-int count = 0;
+byte count = 0;
 while (count < 2000){
   if(count < 1000){
   
@@ -176,8 +207,8 @@ while (count < 2000){
   count++;
   }
   else{
-  int x = analogRead(A0);
-  int y = analogRead(A1);
+  byte x = analogRead(A0);
+  byte y = analogRead(A1);
   if(x < 200){
       digitalWrite(led_g, LOW);
   }
@@ -201,4 +232,4 @@ while (count < 2000){
   digitalWrite(led_r, LOW);
   digitalWrite(led_g, LOW);
   
-}
+}*/
