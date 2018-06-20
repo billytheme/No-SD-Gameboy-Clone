@@ -1,6 +1,7 @@
 #include <LedControl.h>
 #include <TFT.h>
 #include <SPI.h>
+#include <SimpleTimer.h>
 
 // LED Matrix
 #define matrix_din 4
@@ -60,6 +61,16 @@ byte LEDDisplay[24][8] = {{1, 0, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1},
                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 0, 1, 1, 1, 1}, 
                           {1, 1, 0, 0, 1, 1, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}};
+
+byte piece_x;
+byte piece_y;
+byte pieces[4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} }, //line
+                     {{0, 0}, {1, 0}, {0, 1},  {1, 1}  }, //square
+                     {{0, 0}, {0, 1}, {1, 0},  {1, -1} }, //squiggle to right
+                     {{0, 0}, {0, 1}, {-1, 0}, {-1, -1}}, //sqiggle to left
+                     {{0, 0}, {0, 1}, {0, -1}, {1, -1} }, //right hook
+                     {{0, 0}, {0, 1}, {0, -1}, {-1, -1}}, //left hook
+                     {{0, 0}, {0, 1}, {1, 0},  {-1, 0} }} //nearly-cross
 
 void loop() {
   eliminateLine(LEDDisplay);
