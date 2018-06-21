@@ -64,6 +64,8 @@ byte LEDDisplay[24][8] = {{1, 0, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1},
 
 byte piece_x;
 byte piece_y;
+byte piece_rotation;
+byte shapeID;
 byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
                        {{0, 0}, {1, 0}, {0, 1},  {1, 1}  },  //square
                        {{0, 0}, {0, 1}, {1, 0},  {1, -1} },  //squiggle to right
@@ -73,20 +75,56 @@ byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
                        {{0, 0}, {0, 1}, {1, 0},  {-1, 0} }}; //nearly-cross
 
 void loop() {
-  eliminateLine(LEDDisplay);
+  eliminateLine();
 
   updateLED();
 }
 
-void drawShape(byte shapeID){
-  for(int x = 0; x < 4; x++){
-    LEDDisplay[piece_x + peices[shapeID][x][0]][peice_y + peices[shapeID][x][1]] = 1
+void drawShape(){
+  for(int z = 0; z < 4; z++){
+    byte x = pieces[shapeID][z][0];
+    byte y = pieces[shapeID][z][1];
+    if(piece_rotation == 1){
+      byte hold = x * -1;
+      x = y;
+      y = hold;
+    }
+    if(piece_rotation == 2){
+      byte hold = x;
+      x = y;
+      y = hold;
+    }
+    if(piece_rotation == 3){
+      byte hold = x;
+      x = y * -1;
+      y = hold;
+    }
+    
+    LEDDisplay[piece_x + x][piece_y + y] = 1;
   }
 }
 
-void eraseShape(byte shapeID){
-    for(int x = 0; x < 4; x++){
-    LEDDisplay[piece_x + peices[shapeID][x][0]][peice_y + peices[shapeID][x][1]] = 0
+void eraseShape(){
+  for(int z = 0; z < 4; z++){
+    byte x = pieces[shapeID][z][0];
+    byte y = pieces[shapeID][z][1];
+    if(piece_rotation == 1){
+      byte hold = x * -1;
+      x = y;
+      y = hold;
+    }
+    if(piece_rotation == 2){
+      byte hold = x;
+      x = y;
+      y = hold;
+    }
+    if(piece_rotation == 3){
+      byte hold = x;
+      x = y * -1;
+      y = hold;
+    }
+    
+    LEDDisplay[piece_x + x][piece_y + y] = 0;
   }
 }
 
