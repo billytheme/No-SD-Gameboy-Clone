@@ -75,25 +75,44 @@ byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
 void loop() {
   eliminateLine(LEDDisplay);
 
-  updateLED(LEDDisplay);
+  updateLED();
 }
 
-void updateLED(byte arr[24][8]) {
-  byte uparr[24];
+void drawShape(byte shapeID){
+  for(int x = 0; x < 4; x++){
+    LEDDisplay[piece_x + peices[shapeID][x][0]][peice_y + peices[shapeID][x][1]] = 1
+  }
+}
+
+void eraseShape(byte shapeID){
+    for(int x = 0; x < 4; x++){
+    LEDDisplay[piece_x + peices[shapeID][x][0]][peice_y + peices[shapeID][x][1]] = 0
+  }
+}
+
+void updateLED() {
   for(byte x = 0; x < 24; x++){
     byte total = 0;
     for(byte y = 0; y < 8; y++){
-      total = total + (arr[x][7-y] * ceil(pow(2, y)));
+      total = total + (LEDDisplay[x][7-y] * ceil(pow(2, y)));
+    }
+    led_matrix.setRow(((x - (x % 8)) / 8), x % 8, total);
+  } 
+/*  byte uparr[24];
+  for(byte x = 0; x < 24; x++){
+    byte total = 0;
+    for(byte y = 0; y < 8; y++){
+      total = total + (LEDDisplay[x][7-y] * ceil(pow(2, y)));
     }
     uparr[x] = total;
   } 
 
   for(byte x = 0; x < 24; x++){
     led_matrix.setRow(((x - (x % 8)) / 8), x % 8, uparr[x]);
-  }
+  }*/
 }
 
-void eliminateLine(byte input[24][8]){
+void eliminateLine(){
   byte num = 0;
   byte output[24][8];
   
@@ -101,13 +120,14 @@ void eliminateLine(byte input[24][8]){
   for(byte x = 0; x < 24; x++){
     assign = false;
     for(byte help = 0; help < 8; help++){
-      if(input[x][help] == 0){
+      if(LEDDisplay[x][help] == 0){
         assign = true;
+        break;
       }
     }
     if(assign){
       for(byte y = 0; y < 8; y++){
-        output[num][y] = input[x][y];
+        output[num][y] = LEDDisplay[x][y];
       }
       num++;
     }
@@ -121,7 +141,7 @@ void eliminateLine(byte input[24][8]){
   
   for(byte x = 0; x < 24; x++){
     for (byte y = 0; y < 8; y++){
-      input[x][y] = output[x][y];
+      LEDDisplay[x][y] = output[x][y];
     }
   }
 }
