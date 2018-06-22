@@ -27,10 +27,10 @@
 #define led_r 3
 #define led_g 5
 
+
+//initalize output classes for LED and TFT displays
 TFT TFTscreen = TFT(CS, DC, RST);
 LedControl led_matrix = LedControl(matrix_din, matrix_clk, matrix_cs, 3);
-
-void test();
 
 void setup() {
   TFTscreen.begin();
@@ -41,14 +41,18 @@ void setup() {
   led_matrix.setIntensity(1, 5);  
   led_matrix.shutdown(2, false);
   led_matrix.setIntensity(2, 5);
-  
+
+  //initialize output pins and button input pins
   pinMode(menu, INPUT_PULLUP);
   pinMode(joystick_button, INPUT_PULLUP);
   pinMode(led_g, OUTPUT);
   pinMode(led_r, OUTPUT);
 
+  //clear the TFT screen
   TFTscreen.background(0, 0, 0);
 }
+
+//array to store current screen state
 byte LEDDisplay[24][8] = {{1, 0, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1},
                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
@@ -62,10 +66,16 @@ byte LEDDisplay[24][8] = {{1, 0, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1},
                           {1, 1, 0, 0, 1, 1, 0, 1}, {1, 1, 1, 1, 1, 1, 1, 1}, 
                           {1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1}};
 
+//data determining current play piece information
 byte piece_x;
 byte piece_y;
 byte piece_rotation;
 byte shapeID;
+
+//Storage array for different possible shapes. 
+//1st dimension stores all different possible shapes
+//2nd dimension stores points for individual shapes
+//3rd dimension stores individual points as a relative (x, y) coordinate from an origin point
 byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
                        {{0, 0}, {1, 0}, {0, 1},  {1, 1}  },  //square
                        {{0, 0}, {0, 1}, {1, 0},  {1, -1} },  //squiggle to right
@@ -75,11 +85,15 @@ byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
                        {{0, 0}, {0, 1}, {1, 0},  {-1, 0} }}; //nearly-cross
 
 void loop() {
+  //currently just for testing, will contain game logic eventually
   eliminateLine();
 
   updateLED();
 }
 
+//iterates through all points for the relevant shape and applies some logic to rotate them, then displays to a screen
+//shapeID is the shape to displat
+//piece_rotation is represented as either 0, 1, 2, or 3, with 0 being unrotated, 1 being rotated 90 to the right, 2 being 180, ect.
 void drawShape(){
   for(int z = 0; z < 4; z++){
     byte x = pieces[shapeID][z][0];
@@ -104,6 +118,7 @@ void drawShape(){
   }
 }
 
+//exactly the same as above, except erasing instead of writing. intended to be done before any manipulation and displaying of the board
 void eraseShape(){
   for(int z = 0; z < 4; z++){
     byte x = pieces[shapeID][z][0];
@@ -128,6 +143,8 @@ void eraseShape(){
   }
 }
 
+//Takes the LEDDisplay matrix, converts each line to binary, then passes it to the display function
+//The fancy 
 void updateLED() {
   for(byte x = 0; x < 24; x++){
     byte total = 0;
@@ -150,6 +167,7 @@ void updateLED() {
   }*/
 }
 
+//takes eliminates full lines from the LEDDisplay array, and collapse other lines, adds empty lines on top
 void eliminateLine(){
   byte num = 0;
   byte output[24][8];
