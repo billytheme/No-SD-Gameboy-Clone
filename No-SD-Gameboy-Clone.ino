@@ -53,30 +53,30 @@ void setup() {
 }
 
 //array to store current screen state
-byte LEDDisplay[24][8] = {{1, 0, 0, 1, 1, 1, 1, 1}, {1, 1, 0, 1, 1, 1, 1, 1},
-                          {1, 1, 1, 1, 1, 1, 0, 1}, {0, 1, 1, 1, 1, 1, 1, 1}, 
-                          {1, 1, 1, 0, 1, 1, 1, 1}, {1, 1, 1, 0, 1, 1, 1, 1}, 
-                          {1, 1, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 0}, 
-                          {1, 1, 1, 1, 0, 1, 1, 1}, {1, 1, 1, 0, 1, 1, 1, 1}, 
-                          {1, 1, 1, 0, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 0, 1}, 
-                          {1, 1, 1, 1, 1, 1, 1, 0}, {1, 1, 1, 0, 1, 1, 1, 1}, 
-                          {1, 1, 0, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 0, 1}, 
-                          {1, 1, 1, 0, 1, 1, 1, 1}, {1, 1, 1, 0, 1, 1, 1, 1}, 
-                          {1, 1, 1, 1, 1, 1, 1, 0}, {1, 1, 1, 0, 1, 1, 1, 1}, 
-                          {1, 1, 0, 0, 1, 1, 0, 1}, {1, 1, 1, 1, 1, 0, 1, 1}, 
-                          {1, 1, 0, 1, 1, 1, 1, 1}, {1, 1, 0, 1, 1, 1, 1, 1}};
+byte LEDDisplay[24][8] = {{0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
+                          {0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0}};
 
 //data determining current play piece information
-byte piece_x;
-byte piece_y;
-byte piece_rotation;
-byte shapeID;
+byte piece_x = 4;
+byte piece_y = 4;
+int piece_rotation = 2;
+byte shapeID = 4;
 
 //Storage array for different possible shapes. 
 //1st dimension stores all different possible shapes
 //2nd dimension stores points for individual shapes
 //3rd dimension stores individual points as a relative (x, y) coordinate from an origin point
-byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
+int pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
                        {{0, 0}, {1, 0}, {0, 1},  {1, 1}  },  //square
                        {{0, 0}, {0, 1}, {1, 0},  {1, -1} },  //squiggle to right
                        {{0, 0}, {0, 1}, {-1, 0}, {-1, -1}},  //sqiggle to left
@@ -84,10 +84,29 @@ byte pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
                        {{0, 0}, {0, 1}, {0, -1}, {-1, -1}},  //left hook
                        {{0, 0}, {0, 1}, {1, 0},  {-1, 0} }}; //nearly-cross
 
-void loop() {
-  //currently just for testing, will contain game logic eventually
-  eliminateLine();
+byte rotateHoldCount = 0;
 
+void loop() {
+  eraseShape();
+  
+  int x = analogRead(joystick_x);
+  int y = analogRead(joystick_y);
+
+  //rotation
+  if(y > 700){
+    if(rotateHoldCount == 0 || (rotateHoldCount > 4 && rotateHoldCount % 2 == 0)){
+      piece_rotation = (piece_rotation + 1) % 4;
+    }
+    rotateHoldCount++;
+  }
+  else{
+    rotateHoldCount = 0;
+  }
+
+  
+  
+  drawShape();
+  delay(50);
   updateLED();
 }
 
@@ -96,24 +115,14 @@ void loop() {
 //piece_rotation is represented as either 0, 1, 2, or 3, with 0 being unrotated, 1 being rotated 90 to the right, 2 being 180, ect.
 void drawShape(){
   for(int z = 0; z < 4; z++){
-    byte x = pieces[shapeID][z][0];
-    byte y = pieces[shapeID][z][1];
-    if(piece_rotation == 1){
-      byte hold = x * -1;
+    int x = pieces[shapeID][z][0];
+    int y = pieces[shapeID][z][1];
+
+    for(int a = 0; a < piece_rotation; a++){
+      int hold = x * -1;
       x = y;
       y = hold;
     }
-    if(piece_rotation == 2){
-      byte hold = x;
-      x = y;
-      y = hold;
-    }
-    if(piece_rotation == 3){
-      byte hold = x;
-      x = y * -1;
-      y = hold;
-    }
-    
     LEDDisplay[piece_x + x][piece_y + y] = 1;
   }
 }
@@ -121,24 +130,14 @@ void drawShape(){
 //exactly the same as above, except erasing instead of writing. intended to be done before any manipulation and displaying of the board
 void eraseShape(){
   for(int z = 0; z < 4; z++){
-    byte x = pieces[shapeID][z][0];
-    byte y = pieces[shapeID][z][1];
-    if(piece_rotation == 1){
-      byte hold = x * -1;
+    int x = pieces[shapeID][z][0];
+    int y = pieces[shapeID][z][1];
+
+    for(int a = 0; a < piece_rotation; a++){
+      int hold = x * -1;
       x = y;
       y = hold;
     }
-    if(piece_rotation == 2){
-      byte hold = x;
-      x = y;
-      y = hold;
-    }
-    if(piece_rotation == 3){
-      byte hold = x;
-      x = y * -1;
-      y = hold;
-    }
-    
     LEDDisplay[piece_x + x][piece_y + y] = 0;
   }
 }
