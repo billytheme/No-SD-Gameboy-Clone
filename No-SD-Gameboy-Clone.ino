@@ -1,7 +1,6 @@
 #include <LedControl.h>
 #include <TFT.h>
 #include <SPI.h>
-#include <SimpleTimer.h>
 
 // LED Matrix
 #define matrix_din 4
