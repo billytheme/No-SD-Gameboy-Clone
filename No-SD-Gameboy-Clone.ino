@@ -76,14 +76,15 @@ byte shapeID = 4;
 //2nd dimension stores points for individual shapes
 //3rd dimension stores individual points as a relative (x, y) coordinate from an origin point
 int pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
-                       {{0, 0}, {1, 0}, {0, 1},  {1, 1}  },  //square
-                       {{0, 0}, {0, 1}, {1, 0},  {1, -1} },  //squiggle to right
-                       {{0, 0}, {0, 1}, {-1, 0}, {-1, -1}},  //sqiggle to left
-                       {{0, 0}, {0, 1}, {0, -1}, {1, -1} },  //right hook
-                       {{0, 0}, {0, 1}, {0, -1}, {-1, -1}},  //left hook
-                       {{0, 0}, {0, 1}, {1, 0},  {-1, 0} }}; //nearly-cross
+                      {{0, 0}, {1, 0}, {0, 1},  {1, 1}  },  //square
+                      {{0, 0}, {0, 1}, {1, 0},  {1, -1} },  //squiggle to right
+                      {{0, 0}, {0, 1}, {-1, 0}, {-1, -1}},  //sqiggle to left
+                      {{0, 0}, {0, 1}, {0, -1}, {1, -1} },  //right hook
+                      {{0, 0}, {0, 1}, {0, -1}, {-1, -1}},  //left hook
+                      {{0, 0}, {0, 1}, {1, 0},  {-1, 0} }}; //nearly-cross
 
 byte rotateHoldCount = 0;
+byte fallCounter = 1;
 
 void loop() {
   eraseShape();
@@ -96,13 +97,27 @@ void loop() {
     if(rotateHoldCount == 0 || (rotateHoldCount > 4 && rotateHoldCount % 2 == 0)){
       piece_rotation = (piece_rotation + 1) % 4;
     }
-    rotateHoldCount++;
+    if(rotateHoldCount == 254){
+      rotateHoldCount = 5;
+    }
+    else{
+      rotateHoldCount++;
+    }
   }
   else{
     rotateHoldCount = 0;
   }
 
-  
+  if(y < 300){
+    piece_y++;
+    fallCounter = 0;
+  }
+  else{
+    fallCounter = (fallCounter + 1) % 20;
+    if(fallCounter == 0){
+      piece_y++;
+    }
+  }
   
   drawShape();
   delay(50);
@@ -142,7 +157,6 @@ void eraseShape(){
 }
 
 //Takes the LEDDisplay matrix, converts each line to binary, then passes it to the display function
-//The fancy 
 void updateLED() {
   for(byte x = 0; x < 24; x++){
     byte total = 0;
@@ -151,18 +165,6 @@ void updateLED() {
     }
     led_matrix.setRow(((x - (x % 8)) / 8), x % 8, total);
   } 
-/*  byte uparr[24];
-  for(byte x = 0; x < 24; x++){
-    byte total = 0;
-    for(byte y = 0; y < 8; y++){
-      total = total + (LEDDisplay[x][7-y] * ceil(pow(2, y)));
-    }
-    uparr[x] = total;
-  } 
-
-  for(byte x = 0; x < 24; x++){
-    led_matrix.setRow(((x - (x % 8)) / 8), x % 8, uparr[x]);
-  }*/
 }
 
 //takes eliminates full lines from the LEDDisplay array, and collapse other lines, adds empty lines on top
