@@ -85,6 +85,8 @@ int pieces[][4][2] = {{{0, 0}, {0, 1}, {0, -1}, {0, -2} },  //line
 
 byte rotateHoldCount = 0;
 byte fallCounter = 1;
+byte leftHoldCount = 0;
+byte rightHoldCount = 0;
 
 void loop() {
   eraseShape();
@@ -108,6 +110,7 @@ void loop() {
     rotateHoldCount = 0;
   }
 
+  //falling
   if(y < 300){
     piece_y++;
     fallCounter = 0;
@@ -117,6 +120,38 @@ void loop() {
     if(fallCounter == 0){
       piece_y++;
     }
+  }
+
+  //move left
+  if(x > 700){
+    if(leftHoldCount == 0 || (leftHoldCount > 3 && leftHoldCount % 2 == 0)){
+      piece_x++;
+    }
+    if(leftHoldCount == 254){
+      leftHoldCount = 4;
+    }
+    else{
+      leftHoldCount++;
+    }
+  }
+  else{
+    leftHoldCount = 0;
+  }
+
+  //move right
+  if(x > 700){
+    if(rightHoldCount == 0 || (rightHoldCount > 3 && rightHoldCount % 2 == 0)){
+      piece_x--;
+    }
+    if(rightHoldCount == 254){
+      rightHoldCount = 4;
+    }
+    else{
+      rightHoldCount++;
+    }
+  }
+  else{
+    rightHoldCount = 0;
   }
   
   drawShape();
