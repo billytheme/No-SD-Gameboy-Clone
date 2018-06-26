@@ -70,7 +70,7 @@ byte LEDDisplay[24][8] = {{0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0},
 
 //data determining current play piece information
 byte piece_x = 4;
-byte piece_y = 1;
+byte piece_y = 22;
 int piece_rotation = 0;
 byte shapeID = random(7);
 
@@ -94,19 +94,23 @@ byte rightHoldCount = 0;
 bool noCollision = true;
 
 void loop() {
-  if(noCollision){
+  if(noCollision){  
     eraseShape();
   }
   else{
+    eliminateLine();
+    
     rotateHoldCount = 0;
     fallCounter = 1;
     leftHoldCount = 0;
     rightHoldCount = 0;
 
     piece_x = 4;
-    piece_y = 1;
+    piece_y = 22;
     piece_rotation = 0;
     shapeID = random(7);
+
+    noCollision = true;
   }
   
   int x = analogRead(joystick_x);
@@ -132,7 +136,7 @@ void loop() {
   if(y < 300){
     noCollision = validateDraw(0, 1, 0);
     if(noCollision){
-      piece_y++;
+      piece_y--;
       fallCounter = 0;
     }
   }
@@ -141,7 +145,7 @@ void loop() {
     if(fallCounter == 0){
       noCollision = validateDraw(0, 1, 0);
       if(noCollision){
-        piece_y++;
+        piece_y--;
       }
     }
   }
@@ -149,7 +153,7 @@ void loop() {
   //move left
   if(x < 300){
     if((leftHoldCount == 0 || (leftHoldCount > 3 && leftHoldCount % 2 == 0)) && validateDraw(1, 0, 0)){
-      piece_x++;
+      piece_x--;
     }
     if(leftHoldCount == 254){
       leftHoldCount = 4;
@@ -165,7 +169,7 @@ void loop() {
   //move right
   if(x > 700){
     if((rightHoldCount == 0 || (rightHoldCount > 3 && rightHoldCount % 2 == 0)) && validateDraw(-1, 0, 0)){
-      piece_x--;
+      piece_x++;
     }
     if(rightHoldCount == 254){
       rightHoldCount = 4;
@@ -196,7 +200,6 @@ void drawShape(){
       x = y;
       y = hold;
     }
-    Serial.println(piece_x + x);
     LEDDisplay[piece_y + y][piece_x + x] = 1;
   }
 }
@@ -228,7 +231,7 @@ bool validateDraw(int change_x, int change_y, int change_rotation){
       y = hold;
     }
   
-    if(piece_y + y + change_y < 0 || piece_y + y + change_y > 24 || piece_x + x + change_x < 0 || piece_x + x + change_x > 8){
+    if(piece_y + y + change_y < 0 || piece_y + y + change_y > 23 || piece_x + x + change_x < 0 || piece_x + x + change_x > 7){
       return false;
     }
     if(LEDDisplay[piece_y + y + change_y][piece_x + x + change_x] == 1){
@@ -271,7 +274,7 @@ void eliminateLine(){
     }
   }
   
-  for(byte x; num < 24; num++){
+  for(byte x = 24; num < x; x--){
     for(byte y = 0; y < 8; y++){
       output[num][y] = 0;
     }
