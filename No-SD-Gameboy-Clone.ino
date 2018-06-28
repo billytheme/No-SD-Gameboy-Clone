@@ -77,7 +77,6 @@ byte piece_x = 4;
 byte piece_y = 22;
 int piece_rotation = 0;
 byte shapeID = random(7);
-byte nextShapeID = random(7); 
 
 //Storage array for different possible shapes. 
 //1st dimension stores all different possible shapes
